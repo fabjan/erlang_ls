@@ -824,23 +824,31 @@ load_dependency(Module, IncludingPath) ->
     {Old, Diagnostics}.
 
 -spec maybe_compile_and_load(uri(), [els_diagnostics:diagnostic()]) -> ok.
-maybe_compile_and_load(Uri, [] = _CDiagnostics) ->
-    case els_config:get(code_reload) of
-        #{"node" := NodeStr} ->
-            Node = els_utils:compose_node_name(
-                NodeStr,
-                els_config_runtime:get_name_type()
-            ),
-            Module = els_uri:module(Uri),
-            case rpc:call(Node, code, is_sticky, [Module]) of
-                true -> ok;
-                _ -> handle_rpc_result(rpc:call(Node, c, c, [Module]), Module)
-            end;
-        disabled ->
-            ok
-    end;
-maybe_compile_and_load(_Uri, _CDiagnostics) ->
-    ok.
+maybe_compile_and_load(Uri, CDiagnostics) ->
+    maybe_compile_and_load(Uri, CDiagnostics, els_config:get(code_reload)).
+
+-spec maybe_compile_and_load(uri(), [els_diagnostics:diagnostic()], disabled | map()) -> ok.
+maybe_compile_and_load(_Uri, [_ | _CDiagnostics], _) ->
+    ?LOG_DEBUG("Skipping code reload due to diagnostics errors"),
+    ok;
+maybe_compile_and_load(_Uri, _CDiagnostics, disabled) ->
+    ?LOG_DEBUG("Skipping code reload, disabled"),
+    ok;
+maybe_compile_and_load(Uri, [] , #{"node" := NodeStr} = ReloadConfig) ->
+    ?LOG_INFO("Reloading code on ~s", [NodeStr]),
+    Node = els_utils:compose_node_name(
+        NodeStr,
+        els_config_runtime:get_name_type()
+    ),
+    case maps:find("cookie", ReloadConfig) of
+        {ok, CookieStr} -> erlang:set_cookie(Node, list_to_atom(CookieStr));
+        _ -> ok
+    end,
+    Module = els_uri:module(Uri),
+    case rpc:call(Node, code, is_sticky, [Module]) of
+        true -> ok;
+        _ -> handle_rpc_result(rpc:call(Node, c, c, [Module]), Module)
+    end.
 
 -spec handle_rpc_result(term() | {badrpc, term()}, atom()) -> ok.
 handle_rpc_result({ok, Module}, _) ->
