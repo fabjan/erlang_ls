@@ -16,6 +16,7 @@
 %% Test cases
 -export([
     use_long_names_true/1,
+    use_long_names_false/1,
     use_long_names_custom_domain/1,
     use_long_names_custom_hostname/1
 ]).
@@ -37,6 +38,7 @@
 all() ->
     [
         use_long_names_true,
+        use_long_names_false,
         use_long_names_custom_domain,
         use_long_names_custom_hostname
     ].
@@ -80,6 +82,23 @@ use_long_names_true(_TestConfig) ->
 
     {ok, HostName} = inet:gethostname(),
     NodeName = "my_node@" ++ in_current_domain(HostName),
+    Node = list_to_atom(NodeName),
+
+    ?assertEqual(Node, els_config_runtime:get_node_name()),
+    ok.
+
+-spec use_long_names_false(config()) -> ok.
+use_long_names_false(_TestConfig) ->
+    ConfigYaml = "
+      runtime:
+        use_long_names: false
+        cookie: mycookie
+        node_name: my_node
+    ",
+    init_with_config(ConfigYaml),
+
+    {ok, HostName} = inet:gethostname(),
+    NodeName = "my_node@" ++ HostName,
     Node = list_to_atom(NodeName),
 
     ?assertEqual(Node, els_config_runtime:get_node_name()),
