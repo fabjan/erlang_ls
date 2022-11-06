@@ -72,12 +72,11 @@ suite() ->
 %%==============================================================================
 -spec use_long_names_true(config()) -> ok.
 use_long_names_true(_TestConfig) ->
-    ConfigYaml = "
-      runtime:
-        use_long_names: true
-        cookie: mycookie
-        node_name: my_node
-    ",
+    ConfigYaml =
+        "runtime:\n"
+        "  use_long_names: true\n"
+        "  cookie: mycookie\n"
+        "  node_name: my_node\n",
     init_with_config(ConfigYaml),
 
     {ok, HostName} = inet:gethostname(),
@@ -89,12 +88,11 @@ use_long_names_true(_TestConfig) ->
 
 -spec use_long_names_false(config()) -> ok.
 use_long_names_false(_TestConfig) ->
-    ConfigYaml = "
-      runtime:
-        use_long_names: false
-        cookie: mycookie
-        node_name: my_node
-    ",
+    ConfigYaml =
+        "runtime:\n"
+        "  use_long_names: false\n"
+        "  cookie: mycookie\n"
+        "  node_name: my_node\n",
     init_with_config(ConfigYaml),
 
     {ok, HostName} = inet:gethostname(),
@@ -106,13 +104,12 @@ use_long_names_false(_TestConfig) ->
 
 -spec use_long_names_custom_domain(config()) -> ok.
 use_long_names_custom_domain(_TestConfig) ->
-    ConfigYaml = "
-      runtime:
-        use_long_names: true
-        cookie: mycookie
-        node_name: my_node
-        domain: test.local
-    ",
+    ConfigYaml =
+        "runtime:\n"
+        "  use_long_names: true\n"
+        "  cookie: mycookie\n"
+        "  node_name: my_node\n"
+        "  domain: test.local\n",
     init_with_config(ConfigYaml),
 
     {ok, HostName} = inet:gethostname(),
@@ -124,13 +121,12 @@ use_long_names_custom_domain(_TestConfig) ->
 
 -spec use_long_names_custom_hostname(config()) -> ok.
 use_long_names_custom_hostname(_TestConfig) ->
-    ConfigYaml = "
-      runtime:
-        use_long_names: true
-        cookie: mycookie
-        node_name: my_node
-        hostname: 127.0.0.1
-    ",
+    ConfigYaml =
+        "runtime:\n"
+        "  use_long_names: true\n"
+        "  cookie: mycookie\n"
+        "  node_name: my_node\n"
+        "  hostname: 127.0.0.1\n",
     init_with_config(ConfigYaml),
 
     HostName = "127.0.0.1",
